@@ -421,7 +421,8 @@ class TestDatabase:
             "json_event": {"j": "data"},
         }
 
-        submit_logs_to_db(log)
+        result = submit_logs_to_db(log)
+        assert not result
         mock_warn.assert_has_calls(
             [
                 call("Retry 1/1, Database is locked. Retrying submission to database"),
@@ -568,7 +569,7 @@ class TestDatabase:
                 call("All retries exhausted. Skipping this log."),
             ]
         )
-        assert result  # we're continuing operation hence it returns True
+        assert not result  # exhausted retries mean the write never committed
 
     @patch("nettacker.database.db.create_connection")
     def test_temp_log_operational_error(self, mock_create_conn):

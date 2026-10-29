@@ -287,9 +287,11 @@ def submit_logs_to_db(log):
                         except Exception:
                             pass
                         return False
-                # All retries exhausted but we want to continue operation
+                # All retries exhausted: the INSERT was rolled back and never
+                # committed, so the write did not succeed. Report failure while
+                # letting the caller decide whether to continue the scan.
                 logger.warn(messages("database_retries_exhausted"))
-                return True
+                return False
             finally:
                 cursor.close()
                 connection.close()
@@ -379,9 +381,11 @@ def submit_temp_logs_to_db(log):
                         except Exception:
                             pass
                         return False
-                # All retries exhausted but we want to continue operation
+                # All retries exhausted: the INSERT was rolled back and never
+                # committed, so the write did not succeed. Report failure while
+                # letting the caller decide whether to continue the scan.
                 logger.warn(messages("database_retries_exhausted"))
-                return True
+                return False
             finally:
                 cursor.close()
                 connection.close()
